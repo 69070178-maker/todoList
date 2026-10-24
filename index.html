@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>โปรไฟล์นักศึกษา + To-do List</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background-color: #fdf2f8;
+    background-image: linear-gradient(135deg, #ffe4ec 0%, #e0f2fe 50%, #fef9c3 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    color: #5b5b7a;
+  }
+
+  .card {
+    background-color: #ffffff;
+    border: 3px solid #ffd6e7;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(244, 114, 182, 0.25);
+    max-width: 850px;
+    width: 100%;
+    padding: 32px;
+    display: flex;
+    gap: 32px;
+  }
+
+  .profile {
+    flex: 1;
+    background-color: #fff1f2;
+    border: 2px dashed #f9a8d4;
+    border-radius: 18px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .profile img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid #bae6fd;
+    outline: 3px solid #fde68a;
+    margin-bottom: 16px;
+  }
+
+  .profile h1 {
+    font-size: 1.5rem;
+    color: #ec4899;
+    margin-bottom: 8px;
+  }
+
+  .profile p {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
+
+  .student-info {
+    background-color: #e0f2fe;
+    border-radius: 12px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+  }
+
+  .profile a {
+    display: inline-block;
+    margin-top: 10px;
+    background-color: #fde68a;
+    color: #92400e;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    border: 2px solid #fcd34d;
+  }
+
+  .todo {
+    flex: 1.2;
+    background-color: #eff6ff;
+    border: 2px dashed #93c5fd;
+    border-radius: 18px;
+    padding: 24px;
+  }
+
+  .todo h2 {
+    color: #38bdf8;
+    margin-bottom: 16px;
+    font-size: 1.6rem;
+    text-align: center;
+  }
+
+  .todo-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .todo-form input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 2px solid #f9a8d4;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    outline: none;
+    background-color: #fff;
+  }
+
+  .btn-add {
+    background-color: #f9a8d4;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  .todo ul {
+    list-style: none;
+  }
+
+  .todo li {
+    background-color: #ffffff;
+    border: 2px solid #fde68a;
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .todo li:nth-child(odd) {
+    border-color: #bae6fd;
+  }
+
+  .btn-delete {
+    background-color: #fecdd3;
+    color: #be123c;
+    border: 1px solid #fda4af;
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  @media (max-width: 700px) {
+    .card {
+      flex-direction: column;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <!-- ฝั่งซ้าย: Profile -->
+    <div class="profile">
+      <img src="cat.jpg" alt="รูปโปรไฟล์">
+      <h1>นางสาวลดาชมพู อิ่มร้อยเอ็ด</h1>
+      <p class="student-info">รหัสนักศึกษา: 69070178<br>สาขา: IT</p>
+      <p>ชื่อเล่นชื่อมัดหมี่ ชอบกินหมา</p>
+      <a href="https://github.com/69070178-maker">GitHub: 69070178-maker</a>
+    </div>
+
+    <!-- ฝั่งขวา: To-do List -->
+    <div class="todo">
+      <h2>🌸 To-do List 🌸</h2>
+      <div class="todo-form">
+        <input type="text" id="todo-input" placeholder="พิมพ์สิ่งที่ต้องทำ...">
+        <button id="add-btn" class="btn-add" type="button">เพิ่ม</button>
+      </div>
+      <ul id="todo-list">
+        <li>อ่านหนังสือ <button class="btn-delete" type="button">ลบ</button></li>
+        <li>ทำการบ้าน <button class="btn-delete" type="button">ลบ</button></li>
+        <li>ทำโปรเจกต์ <button class="btn-delete" type="button">ลบ</button></li>
+        <li>ทบทวนบทเรียน <button class="btn-delete" type="button">ลบ</button></li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
