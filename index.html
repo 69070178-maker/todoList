@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#4178D0" />
+  <meta name="description" content="FOODPICKER ITF — เว็บสุ่มเมนูอาหารไทย ใช้งานง่าย ไม่ต้องคิดนาน" />
+  <title>FOODPICKER ITF | สุ่มเมนูอาหาร</title>
+
+  <!-- ===== Google Fonts: Prompt (ฟอนต์ภาษาไทย) ===== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&amp;display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* =========================================================
+       1) ตัวแปรสีและค่าหลักของเว็บ
+       ========================================================= */
+    :root {
+      --blue: #4178D0;
+      --blue-dark: #2F5FAE;
+      --coral: #F0605D;
+      --coral-dark: #D94B48;
+      --pink: #E24E70;
+      --pink-soft: #FDE7EC;
+      --ink: #25324A;
+      --muted: #7C8494;
+      --surface: #FFFFFF;
+      --font-thai: "Prompt", "Tahoma", sans-serif;
+      --radius-card: 26px;
+      --shadow-card:
+        0 24px 60px -22px rgba(37, 50, 74, 0.28),
+        0 8px 22px -12px rgba(65, 120, 208, 0.18);
+    }
+
+    /* =========================================================
+       2) พื้นฐานหน้าเว็บ + พื้นหลังไล่สีและวงกลมตกแต่ง
+       ========================================================= */
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      font-family: var(--font-thai);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 12%, rgba(240, 96, 93, 0.12), transparent 30rem),
+        radial-gradient(circle at 92% 86%, rgba(65, 120, 208, 0.14), transparent 34rem),
+        linear-gradient(150deg, #FFF9F5 0%, #F8FAFF 52%, #FFF6F8 100%);
+    }
+
+    /* วงกลมตกแต่งด้านซ้าย */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 9%;
+      left: -90px;
+      z-index: 0;
+      width: 220px;
+      height: 220px;
+      border: 1px solid rgba(240, 96, 93, 0.16);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 28px rgba(240, 96, 93, 0.04),
+        0 0 0 56px rgba(240, 96, 93, 0.025);
+      pointer-events: none;
+    }
+
+    /* รูปทรงตกแต่งด้านขวา */
+    body::after {
+      content: "";
+      position: fixed;
+      right: -60px;
+      bottom: 8%;
+      z-index: 0;
+      width: 180px;
+      height: 180px;
+      border-radius: 42% 58% 63% 37% / 44% 38% 62% 56%;
+      background: rgba(65, 120, 208, 0.06);
+      pointer-events: none;
+    }
+
+    /* =========================================================
+       3) Navbar ด้านบนสุด
+       ========================================================= */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      padding: 16px clamp(16px, 4vw, 48px);
+      color: #FFFFFF;
+      background: var(--blue);
+      box-shadow: 0 8px 24px -12px rgba(32, 68, 126, 0.55);
+    }
+
+    .navbar__id,
+    .navbar__week {
+      font-size: clamp(0.7rem, 1.5vw, 0.86rem);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      opacity: 0.95;
+    }
+
+    .navbar__week {
+      text-align: right;
+    }
+
+    .navbar__brand {
+      color: #FFFFFF;
+      text-decoration: none;
+      white-space: nowrap;
+      font-size: clamp(0.95rem, 2vw, 1.15rem);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    /* =========================================================
+       4) พื้นที่หลัก + หัวข้อต้อนรับ
+       ========================================================= */
+    .page {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: clamp(30px, 5vw, 58px) 20px clamp(34px, 5vw, 54px);
+    }
+
+    .hero {
+      margin-bottom: clamp(20px, 3vh, 30px);
+      text-align: center;
+      animation: fade-up 0.6s ease both;
+    }
+
+    .hero__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      color: var(--blue);
+      background: rgba(65, 120, 208, 0.09);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+    }
+
+    .hero__dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--coral);
+      box-shadow: 0 0 0 4px rgba(240, 96, 93, 0.15);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .hero h1 {
+      margin: 14px 0 6px;
+      font-size: clamp(1.9rem, 5vw, 2.75rem);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(0.82rem, 2vw, 0.96rem);
+      font-weight: 300;
+    }
+
+    /* =========================================================
+       5) การ์ดแสดงเมนูอาหาร
+       ========================================================= */
+    /* ครอบการ์ดอีกชั้น เพื่อให้ animation ตอนโหลดหน้า
+       ไม่ไปทับ transition ตอนเปลี่ยนเมนูของการ์ดด้านใน */
+    .card-stage {
+      width: min(100%, 400px);
+      animation: fade-up 0.65s 0.08s ease both;
+    }
+
+    .food-card {
+      width: 100%;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      transition:
+        opacity 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.3s ease;
+      will-change: opacity, transform;
+    }
+
+    .food-card:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        0 30px 70px -22px rgba(37, 50, 74, 0.32),
+        0 10px 26px -12px rgba(65, 120, 208, 0.2);
+    }
+
+    /* ตอนกำลังเปลี่ยนเมนู: ค่อยๆ จางลงและย่อเล็กน้อย */
+    .food-card.is-switching {
+      opacity: 0;
+      transform: translateY(10px) scale(0.965);
+    }
+
+    .dish-image-wrap {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      background: linear-gradient(135deg, #F8EEF0, #EEF3FB);
+    }
+
+    .dish-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #F8F2F3;
+      transition: transform 0.55s ease;
+    }
+
+    .food-card:hover .dish-image {
+      transform: scale(1.04);
+    }
+
+    /* ป้ายเครดิตภาพเล็กๆ มุมขวาล่าง */
+    .photo-credit {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      color: #FFFFFF;
+      background: rgba(25, 35, 52, 0.52);
+      font-size: 0.62rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      transition: background 0.2s ease;
+    }
+
+    .photo-credit:hover {
+      background: rgba(25, 35, 52, 0.76);
+    }
+
+    .food-card__body {
+      padding: 22px 26px 26px;
+      text-align: center;
+    }
+
+    .dish-name {
+      margin: 0;
+      color: var(--pink);
+      font-size: clamp(1.4rem, 4vw, 1.72rem);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .dish-description {
+      max-width: 320px;
+      min-height: 3.2em;
+      margin: 8px auto 0;
+      color: var(--muted);
+      font-size: 0.87rem;
+      font-weight: 300;
+      line-height: 1.75;
+    }
+
+    /* ป้ายราคาสีชมพูอ่อน */
+    .price-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 16px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      color: #C93D60;
+      background: var(--pink-soft);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .price-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pink);
+      opacity: 0.65;
+    }
+
+    /* =========================================================
+       6) ปุ่มสุ่มเมนู + ข้อความแนะนำ
+       ========================================================= */
+    .action-area {
+      width: min(100%, 400px);
+      margin-top: clamp(22px, 3.5vh, 30px);
+      text-align: center;
+    }
+
+    .random-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-width: 220px;
+      padding: 15px 34px;
+      overflow: hidden;
+      border: 0;
+      border-radius: 999px;
+      color: #FFFFFF;
+      background: var(--coral);
+      font-family: inherit;
+      font-size: 1.02rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 14px 28px -10px rgba(240, 96, 93, 0.65);
+      transition:
+        background 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .random-btn > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .random-btn svg {
+      flex: 0 0 auto;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* แถบแสงวิ่งผ่านตอน hover */
+    .random-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -60%;
+      width: 50%;
+      background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+      transform: skewX(-18deg);
+      transition: left 0.55s ease;
+      pointer-events: none;
+    }
+
+    .random-btn:hover:not(:disabled) {
+      background: var(--coral-dark);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 20px 34px -12px rgba(240, 96, 93, 0.75);
+    }
+
+    .random-btn:hover:not(:disabled)::before {
+      left: 120%;
+    }
+
+    .random-btn:active:not(:disabled) {
+      transform: translateY(-1px) scale(0.99);
+      box-shadow: 0 10px 20px -10px rgba(240, 96, 93, 0.7);
+    }
+
+    .random-btn:focus-visible {
+      outline: 3px solid rgba(65, 120, 208, 0.5);
+      outline-offset: 3px;
+    }
+
+    .random-btn:disabled {
+      opacity: 0.8;
+      cursor: wait;
+    }
+
+    .hint {
+      margin: 11px 0 0;
+      color: #9AA2B1;
+      font-size: 0.72rem;
+      font-weight: 300;
+    }
+
+    /* =========================================================
+       7) Footer
+       ========================================================= */
+    .site-footer {
+      position: relative;
+      z-index: 1;
+      padding: 0 20px 22px;
+      color: #A0A7B4;
+      font-size: 0.68rem;
+      font-weight: 300;
+      text-align: center;
+    }
+
+    .site-footer p {
+      margin: 0;
+    }
+
+    .site-footer a {
+      color: #7C8494;
+      text-underline-offset: 2px;
+      transition: color 0.2s ease;
+    }
+
+    .site-footer a:hover {
+      color: var(--blue);
+    }
+
+    /* =========================================================
+       8) Animation
+       ========================================================= */
+    @keyframes fade-up {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        box-shadow: 0 0 0 4px rgba(240, 96, 93, 0.15);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(240, 96, 93, 0.04);
+      }
+    }
+
+    /* =========================================================
+       9) Responsive: มือถือและแท็บเล็ต
+       ========================================================= */
+    @media (max-width: 480px) {
+      .navbar {
+        gap: 10px;
+        padding: 14px 16px;
+      }
+
+      .navbar__id,
+      .navbar__week {
+        font-size: 0.68rem;
+      }
+
+      .navbar__brand {
+        font-size: 0.95rem;
+        letter-spacing: 0.04em;
+      }
+
+      .page {
+        justify-content: flex-start;
+        padding: 30px 16px 36px;
+      }
+
+      .hero {
+        margin-bottom: 20px;
+      }
+
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+
+      .hero p {
+        font-size: 0.82rem;
+      }
+
+      .food-card {
+        border-radius: 22px;
+      }
+
+      .food-card__body {
+        padding: 20px 20px 24px;
+      }
+
+      .dish-name {
+        font-size: 1.5rem;
+      }
+
+      .action-area {
+        margin-top: 22px;
+      }
+
+      .random-btn {
+        width: 100%;
+        padding: 15px 24px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .navbar__brand {
+        font-size: 0.85rem;
+      }
+
+      .navbar__id,
+      .navbar__week {
+        font-size: 0.62rem;
+      }
+
+      .dish-description {
+        font-size: 0.82rem;
+      }
+    }
+
+    /* =========================================================
+       10) เคารพการตั้งค่าลดการเคลื่อนไหวของผู้ใช้
+       ========================================================= */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- =======================================================
+       Navbar: รหัสนักศึกษา / ชื่อเว็บ / สัปดาห์
+       ======================================================= -->
+  <header class="navbar">
+    <span class="navbar__id">68070153</span>
+    <a class="navbar__brand" href="#" aria-label="FOODPICKER ITF หน้าแรก">FOODPICKER ITF</a>
+    <span class="navbar__week">Week17</span>
+  </header>
+
+  <main class="page">
+    <!-- ===== หัวข้อต้อนรับ ===== -->
+    <section class="hero" aria-labelledby="pageTitle">
+      <span class="hero__eyebrow">
+        <span class="hero__dot" aria-hidden="true"></span>
+        FOOD PICKER
+      </span>
+      <h1 id="pageTitle">วันนี้กินอะไรดี?</h1>
+      <p>ไม่ต้องคิดนาน ปล่อยให้เราสุ่มเมนูอร่อยให้คุณ</p>
+    </section>
+
+    <!-- ===== การ์ดแสดงข้อมูลอาหาร (ค่าเริ่มต้นคือเมนูแรก) ===== -->
+    <div class="card-stage">
+      <article class="food-card" id="foodCard">
+        <div class="dish-image-wrap">
+          <img
+            class="dish-image"
+            id="dishImage"
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Hainanese_chicken_rice_at_Thai_Ten.jpg/960px-Hainanese_chicken_rice_at_Thai_Ten.jpg"
+            alt="ข้าวมันไก่พร้อมน้ำซุปและน้ำจิ้ม"
+            decoding="async"
+          />
+          <a
+            class="photo-credit"
+            id="photoCredit"
+            href="https://commons.wikimedia.org/wiki/File:Hainanese_chicken_rice_at_Thai_Ten.jpg"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Wikimedia Commons</a>
+        </div>
+
+        <div class="food-card__body" aria-live="polite">
+          <h2 class="dish-name" id="dishName">ข้าวมันไก่</h2>
+          <p class="dish-description" id="dishDescription">
+            ไก่ต้มเนื้อนุ่ม เสิร์ฟพร้อมข้าวหอมมัน น้ำจิ้มเต้าเจี้ยว และน้ำซุปใส
+          </p>
+          <span class="price-badge" id="dishPrice">ราคา 50-65 บาท</span>
+        </div>
+      </article>
+    </div>
+
+    <!-- ===== ปุ่มสุ่มเมนู ===== -->
+    <div class="action-area">
+      <button class="random-btn" id="randomButton" type="button" aria-label="สุ่มเมนูอาหาร">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.8" />
+          <circle cx="8.2" cy="8.2" r="1.35" fill="currentColor" />
+          <circle cx="15.8" cy="8.2" r="1.35" fill="currentColor" />
+          <circle cx="12" cy="12" r="1.35" fill="currentColor" />
+          <circle cx="8.2" cy="15.8" r="1.35" fill="currentColor" />
+          <circle cx="15.8" cy="15.8" r="1.35" fill="currentColor" />
+        </svg>
+        <span>สุ่มเมนูอาหาร</span>
+      </button>
+      <p class="hint">กดสุ่มได้เรื่อยๆ · จะไม่ซ้ำเมนูเดิมติดกัน</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      FOODPICKER ITF · ภาพประกอบจาก
+      <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer">Unsplash</a>
+      และ
+      <a href="https://commons.wikimedia.org" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>
+    </p>
+  </footer>
+
+  <script>
+    /* =========================================================
+       1) ข้อมูลเมนูทั้งหมด
+       ---------------------------------------------------------
+       เพิ่มเมนูใหม่ได้ที่นี่ โดยคัดลอก object หนึ่งก้อนแล้วแก้ค่า
+       - name        : ชื่อเมนู
+       - description : คำอธิบายสั้นๆ
+       - price       : ราคา (ไม่ต้องใส่คำว่า "ราคา" เพราะ JS เติมให้)
+       - image       : URL รูปภาพ
+       - alt         : คำอธิบายรูปสำหรับ accessibility
+       - credit      : แหล่งที่มาของรูป + ลิงก์
+       ========================================================= */
+    const menus = [
+      {
+        name: "ข้าวมันไก่",
+        description: "ไก่ต้มเนื้อนุ่ม เสิร์ฟพร้อมข้าวหอมมัน น้ำจิ้มเต้าเจี้ยว และน้ำซุปใส",
+        price: "50-65 บาท",
+        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Hainanese_chicken_rice_at_Thai_Ten.jpg/960px-Hainanese_chicken_rice_at_Thai_Ten.jpg",
+        alt: "ข้าวมันไก่พร้อมน้ำซุปและน้ำจิ้ม",
+        credit: {
+          label: "Wikimedia Commons",
+          url: "https://commons.wikimedia.org/wiki/File:Hainanese_chicken_rice_at_Thai_Ten.jpg"
+        }
+      },
+      {
+        name: "ผัดกะเพราหมูสับ",
+        description: "หมูสับผัดใบกะเพราหอมกรุ่น พร้อมไข่ดาวกรอบขอบและข้าวสวยร้อนๆ",
+        price: "55-70 บาท",
+        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Siam_Garden_Phat_kaphrao_ac.jpg/960px-Siam_Garden_Phat_kaphrao_ac.jpg",
+        alt: "ผัดกะเพราหมูสับราดข้าวพร้อมไข่ดาว",
+        credit: {
+          label: "Wikimedia Commons",
+          url: "https://commons.wikimedia.org/wiki/File:Siam_Garden_Phat_kaphrao_ac.jpg"
+        }
+      },
+      {
+        name: "ก๋วยเตี๋ยวเรือ",
+        description: "เส้นเล็กในน้ำซุปเครื่องพะโล้เข้มข้น กลิ่นสมุนไพรไทย หอมกลมกล่อม",
+        price: "45-60 บาท",
+        image: "https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=900&q=80",
+        alt: "ก๋วยเตี๋ยวเรือน้ำซุปเข้มข้น",
+        credit: {
+          label: "Unsplash",
+          url: "https://unsplash.com/s/photos/thai-noodles"
+        }
+      },
+      {
+        name: "ส้มตำ",
+        description: "มะละกอกรอบคลุกน้ำปลา มะนาว พริก และถั่วลิสง ตัดรสเปรี้ยวหวานเผ็ด",
+        price: "45-65 บาท",
+        image: "https://images.unsplash.com/photo-1562565652-a0d8f0c59eb4?auto=format&fit=crop&w=900&q=80",
+        alt: "ส้มตำและอาหารไทยหลากหลายเมนู",
+        credit: {
+          label: "Unsplash",
+          url: "https://unsplash.com/s/photos/thai-food"
+        }
+      },
+      {
+        name: "ข้าวผัด",
+        description: "ข้าวผัดเม็ดร่วนหอมกลิ่นกระทะ เสิร์ฟพร้อมมะนาว แตงกวา และต้นหอม",
+        price: "50-65 บาท",
+        image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=80",
+        alt: "ข้าวผัดในกระทะพร้อมมะนาว",
+        credit: {
+          label: "Unsplash",
+          url: "https://unsplash.com/s/photos/fried-rice"
+        }
+      },
+      {
+        name: "ต้มยำกุ้ง",
+        description: "กุ้งสดตัวโตในน้ำต้มยำรสเปรี้ยวเผ็ด หอมตะไคร้ ใบมะกรูด และข่า",
+        price: "80-120 บาท",
+        image: "https://images.unsplash.com/photo-1548943487-a2e4e43b4853?auto=format&fit=crop&w=900&q=80",
+        alt: "ต้มยำกุ้งรสเปรี้ยวเผ็ด",
+        credit: {
+          label: "Unsplash",
+          url: "https://unsplash.com/s/photos/tom-yum"
+        }
+      },
+      {
+        name: "ผัดไทย",
+        description: "เส้นจันท์ผัดซอสผัดไทยรสเปรี้ยวหวานมัน โรยถั่วลิสงและถั่วงอก",
+        price: "50-70 บาท",
+        image: "https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&w=900&q=80",
+        alt: "ผัดไทยกุ้งสดโรยถั่วลิสง",
+        credit: {
+          label: "Unsplash",
+          url: "https://unsplash.com/s/photos/pad-thai"
+        }
+      },
+      {
+        name: "ข้าวหมูแดง",
+        description: "หมูแดงหมูกรอบราดน้ำซอสหวานเค็ม พร้อมข้าวสวย ไข่ต้ม และแตงกวา",
+        price: "55-75 บาท",
+        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Khao_mu_daeng_mu_krop_-_Ratchaburi_-_2017-04-16_%28001%29.jpg/960px-Khao_mu_daeng_mu_krop_-_Ratchaburi_-_2017-04-16_%28001%29.jpg",
+        alt: "ข้าวหมูแดงหมูกรอบพร้อมไข่ต้ม",
+        credit: {
+          label: "Wikimedia Commons",
+          url: "https://commons.wikimedia.org/wiki/File:Khao_mu_daeng_mu_krop_-_Ratchaburi_-_2017-04-16_(001).jpg"
+        }
+      }
+    ];
+
+    /* =========================================================
+       2) อ้างอิง element ที่ต้องใช้
+       ========================================================= */
+    const foodCard = document.getElementById("foodCard");
+    const dishImage = document.getElementById("dishImage");
+    const dishName = document.getElementById("dishName");
+    const dishDescription = document.getElementById("dishDescription");
+    const dishPrice = document.getElementById("dishPrice");
+    const photoCredit = document.getElementById("photoCredit");
+    const randomButton = document.getElementById("randomButton");
+
+    let currentIndex = 0; // เริ่มต้นที่เมนูแรก (ข้าวมันไก่)
+    let isAnimating = false;
+
+    /* =========================================================
+       3) สร้างรูปสำรอง (SVG) กรณีรูปจากอินเทอร์เน็ตโหลดไม่ขึ้น
+       ========================================================= */
+    function createFallbackImage(menuName) {
+      const escapeMap = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&apos;"
+      };
+      const safeName = String(menuName).replace(/[&<>"']/g, (char) => escapeMap[char]);
+
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+          <defs>
+            <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#FFF3F5" />
+              <stop offset="1" stop-color="#EAF1FC" />
+            </linearGradient>
+            <linearGradient id="bowl" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#F47B78" />
+              <stop offset="1" stop-color="#E24E70" />
+            </linearGradient>
+          </defs>
+          <rect width="960" height="600" fill="url(#bg)" />
+          <circle cx="480" cy="235" r="150" fill="#FFFFFF" opacity="0.62" />
+          <path d="M330 220h300c0 82-67 142-150 142S330 302 330 220Z" fill="url(#bowl)" />
+          <path d="M306 220h348" stroke="#D94B48" stroke-width="12" stroke-linecap="round" />
+          <path d="M420 170c-24-28 22-40 0-70M480 165c-24-28 22-40 0-70M540 170c-24-28 22-40 0-70"
+                fill="none" stroke="#F0605D" stroke-width="9" stroke-linecap="round" opacity="0.55" />
+          <text x="480" y="455" text-anchor="middle" font-family="Prompt, Tahoma, sans-serif"
+                font-size="42" font-weight="700" fill="#C93D60">${safeName}</text>
+          <text x="480" y="500" text-anchor="middle" font-family="Prompt, Tahoma, sans-serif"
+                font-size="22" fill="#7C8494">ขออภัย รูปภาพโหลดไม่สำเร็จ</text>
+        </svg>
+      `.trim();
+
+      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+    }
+
+    /* =========================================================
+       4) แสดงข้อมูลเมนูลงบนการ์ด
+       ========================================================= */
+    function renderMenu(index) {
+      const menu = menus[index];
+
+      dishName.textContent = menu.name;
+      dishDescription.textContent = menu.description;
+      dishPrice.textContent = "ราคา " + menu.price;
+      dishImage.alt = menu.alt || "รูปภาพ " + menu.name;
+
+      // onerror fallback: ถ้ารูปโหลดไม่ขึ้น ให้เปลี่ยนเป็นรูป SVG ที่สร้างไว้
+      dishImage.onerror = () => {
+        dishImage.onerror = null;
+        dishImage.src = createFallbackImage(menu.name);
+        dishImage.alt = "รูปสำรองสำหรับ " + menu.name;
+      };
+
+      // ถ้าไม่ได้ใส่ image มา ให้ใช้รูปสำรองทันที
+      if (menu.image) {
+        dishImage.src = menu.image;
+      } else {
+        dishImage.src = createFallbackImage(menu.name);
+      }
+
+      // credit เป็นข้อมูลเสริม: ไม่ใส่ก็ยังใช้งานได้
+      photoCredit.textContent = menu.credit ? menu.credit.label : "ภาพประกอบ";
+      photoCredit.href = menu.credit ? menu.credit.url : "#";
+    }
+
+    /* =========================================================
+       5) สุ่มเมนูใหม่ (ไม่ซ้ำกับเมนูเดิมติดกัน)
+       ========================================================= */
+    function getRandomIndex() {
+      if (menus.length <= 1) return 0;
+
+      let nextIndex;
+      do {
+        nextIndex = Math.floor(Math.random() * menus.length);
+      } while (nextIndex === currentIndex);
+
+      return nextIndex;
+    }
+
+    function handleRandomClick() {
+      if (isAnimating || menus.length <= 1) return;
+
+      const nextIndex = getRandomIndex();
+
+      isAnimating = true;
+      randomButton.disabled = true;
+      randomButton.setAttribute("aria-busy", "true");
+      foodCard.classList.add("is-switching");
+
+      // รอให้การ์ดจางลงก่อน แล้วค่อยเปลี่ยนข้อมูล
+      window.setTimeout(() => {
+        currentIndex = nextIndex;
+        renderMenu(currentIndex);
+
+        // ค่อยๆ เฟดการ์ดกลับมา พร้อมปล่อยให้กดสุ่มครั้งถัดไปได้
+        foodCard.classList.remove("is-switching");
+
+        window.setTimeout(() => {
+          isAnimating = false;
+          randomButton.disabled = false;
+          randomButton.removeAttribute("aria-busy");
+        }, 220);
+      }, 180);
+    }
+
+    /* =========================================================
+       6) โหลดรูปเมนูอื่นล่วงหน้า เพื่อให้กดสุ่มแล้วเปลี่ยนได้ไว
+       ========================================================= */
+    function preloadMenuImages() {
+      menus.slice(1).forEach((menu) => {
+        const image = new Image();
+        image.src = menu.image;
+      });
+    }
+
+    /* =========================================================
+       7) เริ่มต้นใช้งาน
+       ========================================================= */
+    renderMenu(0); // โหลดหน้าแรกให้แสดงเมนูแรกก่อน
+    randomButton.addEventListener("click", handleRandomClick);
+    window.addEventListener("load", () => {
+      window.setTimeout(preloadMenuImages, 500);
+    });
+  </script>
+</body>
+</html>
